@@ -17,14 +17,14 @@ class GeneralController extends Controller
 
         $category = Category::select('id','s_image',
             's_name_'.app()->getLocale() .' as s_name',
-            's_description_'.app()->getLocale() .' as s_description'
-        )->get();
+            's_description_'.app()->getLocale() .' as s_description')
+            ->take(3)->get();
         $ads = Ads::all();
         $offers =Product::select('id',
             's_name_'.app()->getLocale() .' as s_name',
             's_description_'.app()->getLocale() .' as s_description',
             's_image','b_is_offer','f_old_price','f_new_price','i_category_id')
-            ->where('b_is_offer','=',true)->get();
+            ->where('b_is_offer','=',true)->take(3)->get();
 
          return response()->json(
              [
@@ -60,5 +60,43 @@ class GeneralController extends Controller
 
     }
 
+    public function addconstants(Request $request){
+
+        $request->validate([
+            's_key' => 'required',
+            's_value' => 'required',
+        ]);
+        $data = $request->all();
+        $constants = Constants::create($data);
+        return response()->json($constants, 201);
+
+    }
+
+    public function deleteconstants($id){
+        $constant = Constants::destroy($id);
+        return response()->json([
+            'status'=>[
+                'success'=>true,
+                'code'=> 1,
+                'message'=>'deleted done'
+            ],
+            'constant'=>$constant]);
+    }
+
+    public function addAds(Request $request){
+        $request->validate([
+            's_image' => 'image'
+        ]);
+
+        $data = $request->all();
+
+        if ($request->hasFile('s_image') && $request->file('s_image')->isValid()) {
+            $data['s_image'] = $request->file('s_image')->store('/', 'public');
+        }
+        $ads = Ads::create($data);
+
+        return response()->json($ads, 201);
+
+    }
 
 }

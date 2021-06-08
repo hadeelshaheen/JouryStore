@@ -19,7 +19,8 @@ class DatabaseSeeder extends Seeder
 //           ProductSeeder::class
 //        ]);
      $this->call([
-               ConstantsSeeder::class
+               //ConstantsSeeder::class
+         UsersSeeder::class
             ]);
 
     }

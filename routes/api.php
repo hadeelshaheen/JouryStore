@@ -25,11 +25,34 @@ Route::group([
     Route::post('user/signup', [\App\Http\Controllers\Api\AuthController::class,'signup']);
     Route::post('user/forgot', [\App\Http\Controllers\Api\ForgotController::class,'forgot']);
     Route::post('user/reset', [\App\Http\Controllers\Api\ForgotController::class,'reset']);
+
     Route::get('constants', [\App\Http\Controllers\Api\GeneralController::class,'constants']);
+    Route::post('constants/add', [\App\Http\Controllers\Api\GeneralController::class,'addconstants']);
+    Route::delete('constants/delete/{id}', [\App\Http\Controllers\Api\GeneralController::class,'deleteconstants']);
+    Route::post('ads/add', [\App\Http\Controllers\Api\GeneralController::class,'addAds']);
+
+    Route::get('category',  [\App\Http\Controllers\Api\CategoryController::class,'index']);
+
+    Route::post('product/list', [\App\Http\Controllers\Api\ProductController::class,'listProducts']);
+    Route::get('offers/list', [\App\Http\Controllers\Api\ProductController::class,'listOffers']);
+    Route::post('product/similar',  [\App\Http\Controllers\Api\ProductController::class,'similarProduct']);
+
+    Route::get('home', [\App\Http\Controllers\Api\GeneralController::class,'homeContent']);
+
 
     /**/
     Route::post('category',  [\App\Http\Controllers\Api\CategoryController::class,'store']);
+    Route::delete('category/{id}',  [\App\Http\Controllers\Api\CategoryController::class,'destroy']);
+
     Route::post('product',  [\App\Http\Controllers\Api\ProductController::class,'store']);
+    Route::delete('product/delete/{id}',  [\App\Http\Controllers\Api\ProductController::class,'destroy']);
+
+
+    Route::delete('order/delete/{id}',  [\App\Http\Controllers\Api\OrderController::class,'destroy']);
+    Route::post('order/update/{id}',  [\App\Http\Controllers\Api\OrderController::class,'update']);
+
+
+
     /**/
 
     Route::group([
@@ -38,11 +61,8 @@ Route::group([
         Route::get('user/logout', [\App\Http\Controllers\Api\AuthController::class,'logout']);
         Route::get('user/profile',  [\App\Http\Controllers\Api\AuthController::class,'userProfile']);
         Route::post('user/edit',  [\App\Http\Controllers\Api\AuthController::class,'updateProfile']);
-        Route::get('category',  [\App\Http\Controllers\Api\CategoryController::class,'index']);
-        Route::get('home', [\App\Http\Controllers\Api\GeneralController::class,'homeContent']);
 
-        Route::post('product/list', [\App\Http\Controllers\Api\ProductController::class,'listProducts']);
-        Route::get('offers/list', [\App\Http\Controllers\Api\ProductController::class,'listOffers']);
+
         Route::post('product/search',  [\App\Http\Controllers\Api\ProductController::class,'search']);
         Route::post('product/filter',  [\App\Http\Controllers\Api\ProductController::class,'filter']);
 

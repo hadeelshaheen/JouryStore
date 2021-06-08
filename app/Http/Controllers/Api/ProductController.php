@@ -16,7 +16,7 @@ class ProductController extends Controller
           's_description_'.app()->getLocale() .' as s_description',
           's_image','b_is_offer','f_old_price','f_new_price','i_category_id')
          ->where('i_category_id',$category_id)
-          ->paginate(10);
+          ->get();
 
       return response()->json(
           [
@@ -36,7 +36,7 @@ class ProductController extends Controller
           's_description_'.app()->getLocale() .' as s_description',
           's_image','b_is_offer','f_old_price','f_new_price','i_category_id')
           ->where('b_is_offer','=',true)
-          ->paginate(10);
+          ->get();
 
       return response()->json(
           [
@@ -61,7 +61,9 @@ class ProductController extends Controller
           'i_category_id' => 'string',
           's_image' => 'image',
           's_store_en' => 'string',
-          's_store_ar' => 'string'
+          's_store_ar' => 'string',
+          'b_is_offer'=> 'string',
+          'f_new_price'=> 'string'
       ]);
 
       $data = $request->all();
@@ -120,5 +122,42 @@ class ProductController extends Controller
 
                 ],
                 'products'=>$product]);
+    }
+
+
+    public function similarProduct(Request $request){
+        $product_id = $request->id;
+        $category_id = $request->category_id;
+
+        $product =Product::select('id',
+            's_name_'.app()->getLocale() .' as s_name',
+            's_description_'.app()->getLocale() .' as s_description',
+            's_image','b_is_offer','f_old_price','f_new_price','i_category_id')
+            ->where('i_category_id', '=',$category_id)
+            ->whereNotIn('id',$product_id)
+
+            ->get();
+
+        return response()->json(
+            [
+
+                'status'=>[
+                    'success'=>true,
+                    'code'=> 1,
+                    'message'=>'Similar Product'
+
+                ],
+                'products'=>$product]);
+    }
+
+    public function destroy($id){
+      $product = Product::destroy($id);
+        return response()->json([
+            'status'=>[
+                'success'=>true,
+                'code'=> 1,
+                'message'=>'deleted done'
+            ],
+            'product'=>$product]);
     }
 }

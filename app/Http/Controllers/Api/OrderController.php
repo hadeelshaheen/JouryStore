@@ -64,7 +64,30 @@ class OrderController extends Controller
 
 
     }
+    public function update(Request $request ,$id){
+        $order = Order::findOrFail($id);
+        if($order) {
+            $order->s_status = $request->s_status;
+            $order->save();
+            return response()->json([
+                'status'=>[
+                    'success'=>true,
+                    'code'=> 1,
+                    'message'=>'deleted done'
+                ],
+                'order'=>$order]);
+        }
+    }
 
-
+    public function destroy($id){
+        $order = Order::destroy($id);
+        return response()->json([
+            'status'=>[
+                'success'=>true,
+                'code'=> 1,
+                'message'=>'deleted done'
+            ],
+            'order'=>$order]);
+    }
 
 }

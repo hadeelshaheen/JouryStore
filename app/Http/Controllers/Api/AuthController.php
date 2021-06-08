@@ -6,13 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function signup(Request $request)
-    {
+    public function signup(Request $request){
         $request->validate([
             'name' => 'required',
             'email' => 'required|string|unique:users',
@@ -21,17 +21,15 @@ class AuthController extends Controller
 //            's_image' => 'nullable|image',
 //            's_address' => 'nullable|string'
         ]);
-        $user = new User([
+        $user =  User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
             's_phone' => $request->s_phone,
-          //  's_image' => $request->s_image,
+            //  's_image' => $request->s_image,
             //'s_address' => $request->s_address
 
         ]);
-
-
 
 //        $user->save();
 //        return response()->json([
@@ -46,6 +44,38 @@ class AuthController extends Controller
                     'message'=>'Successfully created user!'
                 ],
                 'user'=>$user]);
+        /***/
+//        $request->validate([
+//            'name' => 'required',
+//            'email' => 'required|string|unique:users',
+//            'password' => 'required|string',
+//            's_phone' => 'required|string|min:7|max:10',
+////            's_image' => 'nullable|image',
+////            's_address' => 'nullable|string'
+//        ]);
+//        $user = new User([
+//            'name' => $request->name,
+//            'email' => $request->email,
+//            'password' => bcrypt($request->password),
+//            's_phone' => $request->s_phone,
+//          //  's_image' => $request->s_image,
+//            //'s_address' => $request->s_address
+//
+//        ]);
+//
+////        $user->save();
+////        return response()->json([
+////            'message' => 'Successfully created user!'
+////        ], 201);
+//
+//        return response()->json(
+//            [
+//                'status'=>[
+//                    'success'=>true,
+//                    'code'=> 1,
+//                    'message'=>'Successfully created user!'
+//                ],
+//                'user'=>$user]);
     }
 
     public function login(Request $request){
@@ -59,11 +89,12 @@ class AuthController extends Controller
         $credentials = request(['email', 'password']);
         if(!Auth::attempt($credentials))
             return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
+                'message' => 'User Not Found'
+            ], 422);
 
         $user = $request->user();
-        $tokenResult = $user->createToken('Personal Access Token');
+        $tokenResult = $user->createToken('Personal Access Token')->accessToken;
+      //  dd($tokenResult);
         $token = $tokenResult->token;
 
         if ($request->remember_me)

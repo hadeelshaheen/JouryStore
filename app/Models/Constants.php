@@ -7,5 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Constants extends Model
 {
+    protected $fillable = ['s_key','s_value'];
     use HasFactory;
 }
