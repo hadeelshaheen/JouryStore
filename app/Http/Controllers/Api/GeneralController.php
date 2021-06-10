@@ -90,13 +90,57 @@ class GeneralController extends Controller
 
         $data = $request->all();
 
-        if ($request->hasFile('s_image') && $request->file('s_image')->isValid()) {
-            $data['s_image'] = $request->file('s_image')->store('/', 'public');
+        if($request->hasfile('s_image')) {
+            $request->file('s_image')->move(public_path('img/products/'), $request->file('s_image')->getClientOriginalName());
+            $data['s_image'] = 'https://jourystore.herokuapp.com/img/products/' . $request->file('s_image')->getClientOriginalName();
         }
-        $ads = Ads::create($data);
 
+        $ads = Ads::create($data);
         return response()->json($ads, 201);
+//
+//        if ($request->hasFile('s_image') && $request->file('s_image')->isValid()) {
+//            $data['s_image'] = $request->file('s_image')->store('/', 'public');
+//        }
+//        $ads = Ads::create($data);
+//
+//        return response()->json($ads, 201);
+
+//        $image_path = null;
+//        if ($request->hasFile('s_image') && $request->file('s_image')->isValid()) {
+//            $file = $request->file('s_image');
+//            $image_path = $file->store('/', [
+//                'disk' => 'public'
+//            ]);
+//        }
+
+
+//        if ($request->hasFile('s_image') && $request->file('s_image')->isValid()) {
+//            $image_path = $request->file('s_image')->store('/', 'public');
+//        }
+
+//****//
+//        if($request->hasfile('s_image')) {
+//            $request->file('s_image')->move(public_path('img/products/'), $request->file('s_image')->getClientOriginalName());
+//            $image = 'https://jourystore.herokuapp.com/img/products/' . $request->file('s_image')->getClientOriginalName();
+//        }
+//
+//
+//        $ads = Ads::create([
+//            's_image' => $image
+//        ]);
+//        return response()->json($ads, 201);
+
 
     }
 
+    public function destroyAds($id){
+        $ads = Ads::destroy($id);
+        return response()->json([
+            'status'=>[
+                'success'=>true,
+                'code'=> 1,
+                'message'=>'deleted done'
+            ],
+            'product'=>$ads]);
+    }
 }

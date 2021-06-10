@@ -5,18 +5,37 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use PhpParser\Node\Expr\Cast\Object_;
 
 class ProductController extends Controller
 {
 
   public function listProducts(Request $request){
-      $category_id = $request->category_id;
-      $product =Product::select('id',
+//      $category_id = $request->category_id;
+//      $product =Product::select('id',
+//          's_name_'.app()->getLocale() .' as s_name',
+//          's_description_'.app()->getLocale() .' as s_description',
+//          's_image','b_is_offer','f_old_price','f_new_price','i_category_id')
+//         ->where('i_category_id',$category_id)
+//          ->get();
+
+
+      if($request->has('category_id')) {
+          $product =Product::select('id',
           's_name_'.app()->getLocale() .' as s_name',
-          's_description_'.app()->getLocale() .' as s_description',
+              's_store_'.app()->getLocale() .' as s_store',
+              's_description_'.app()->getLocale() .' as s_description',
           's_image','b_is_offer','f_old_price','f_new_price','i_category_id')
-         ->where('i_category_id',$category_id)
+         ->where('i_category_id',$request->category_id)
           ->get();
+      }else{
+          $product =Product::select('id',
+              's_name_'.app()->getLocale() .' as s_name',
+              's_store_'.app()->getLocale() .' as s_store',
+              's_description_'.app()->getLocale() .' as s_description',
+              's_image','b_is_offer','f_old_price','f_new_price','i_category_id')
+              ->get();
+      }
 
       return response()->json(
           [
@@ -33,6 +52,7 @@ class ProductController extends Controller
   public function listOffers(){
       $offers =Product::select('id',
           's_name_'.app()->getLocale() .' as s_name',
+          's_store_'.app()->getLocale() .' as s_store',
           's_description_'.app()->getLocale() .' as s_description',
           's_image','b_is_offer','f_old_price','f_new_price','i_category_id')
           ->where('b_is_offer','=',true)
@@ -68,9 +88,15 @@ class ProductController extends Controller
 
       $data = $request->all();
 
-      if ($request->hasFile('s_image') && $request->file('s_image')->isValid()) {
-          $data['s_image'] = $request->file('s_image')->store('/', 'public');
+//      if ($request->hasFile('s_image') && $request->file('s_image')->isValid()) {
+//          $data['s_image'] = $request->file('s_image')->store('/', 'public');
+//      }
+      if($request->hasfile('s_image')) {
+          $request->file('s_image')->move(public_path('img/products/'), $request->file('s_image')->getClientOriginalName());
+          $data['s_image'] = 'https://jourystore.herokuapp.com/img/products/' . $request->file('s_image')->getClientOriginalName();
       }
+
+
       $product = Product::create($data);
       return response()->json($product, 201);
   }
@@ -79,6 +105,7 @@ class ProductController extends Controller
       $data = $request->input('word');
       $product =Product::select('id',
           's_name_'.app()->getLocale() .' as s_name',
+          's_store_'.app()->getLocale() .' as s_store',
           's_description_'.app()->getLocale() .' as s_description',
           's_image','b_is_offer','f_old_price','f_new_price','i_category_id')
           ->where('s_name_en', 'like', "%{$data}%")
@@ -106,6 +133,7 @@ class ProductController extends Controller
         $product =Product::select('id',
             's_name_'.app()->getLocale() .' as s_name',
             's_description_'.app()->getLocale() .' as s_description',
+            's_store_'.app()->getLocale() .' as s_store',
             's_image','b_is_offer','f_old_price','f_new_price','i_category_id')
             ->where('b_is_offer', 'like', "%{$is_offer}%")
             ->orWhere('f_new_price', 'BETWEEN',$min,'AND',$max)
@@ -132,9 +160,10 @@ class ProductController extends Controller
         $product =Product::select('id',
             's_name_'.app()->getLocale() .' as s_name',
             's_description_'.app()->getLocale() .' as s_description',
+            's_store_'.app()->getLocale() .' as s_store',
             's_image','b_is_offer','f_old_price','f_new_price','i_category_id')
-            ->where('i_category_id', '=',$category_id)
-            ->whereNotIn('id',$product_id)
+            ->where('i_category_id', '=',[$category_id])
+            ->whereNotIn('id',[$product_id])
 
             ->get();
 

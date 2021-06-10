@@ -61,9 +61,15 @@ class CategoryController extends Controller
 
         $data = $request->all();
 
-        if ($request->hasFile('s_image') && $request->file('s_image')->isValid()) {
-            $data['s_image'] = $request->file('s_image')->store('/', 'public');
+//        if ($request->hasFile('s_image') && $request->file('s_image')->isValid()) {
+//            $data['s_image'] = $request->file('s_image')->store('/', 'public');
+//        }
+
+        if($request->hasfile('s_image')) {
+            $request->file('s_image')->move(public_path('img/products/'), $request->file('s_image')->getClientOriginalName());
+            $data['s_image'] = 'https://jourystore.herokuapp.com/img/products/' . $request->file('s_image')->getClientOriginalName();
         }
+
         $category = Category::create($data);
         return response()->json($category, 201);
 

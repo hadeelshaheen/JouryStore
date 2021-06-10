@@ -23,6 +23,7 @@ class ForgotController extends Controller
             ] , 404);
         }
         $token = Str::random(10);
+        dd($token);
 
         try {
             DB::table('password_resets')->insert([

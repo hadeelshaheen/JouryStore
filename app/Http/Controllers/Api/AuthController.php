@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -79,19 +81,21 @@ class AuthController extends Controller
     }
 
     public function login(Request $request){
+//
+//        DB::delete('delete from oauth_clients');
+//        Artisan::call('passport:client', array( '--personal' => true));
+//
 
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
             'remember_me' => 'boolean'
         ]);
-
         $credentials = request(['email', 'password']);
         if(!Auth::attempt($credentials))
             return response()->json([
                 'message' => 'User Not Found'
             ], 422);
-
         $user = $request->user();
         $tokenResult = $user->createToken('Personal Access Token')->accessToken;
       //  dd($tokenResult);
@@ -108,7 +112,6 @@ class AuthController extends Controller
             'expires_at' => Carbon::parse(
                 $tokenResult->token->expires_at
             )->toDateTimeString(),
-
         ],200);
     }
 
@@ -157,10 +160,17 @@ class AuthController extends Controller
                 $user->s_phone = $request->s_phone;
                 $user->s_address = $request->s_address;
 
-                if ($request->hasFile('s_image') && $request->file('s_image')->isValid()) {
-                    $user['s_image'] = $request->file('s_image')->store('/', 'public');
-                    //dd('anything');
+//                if ($request->hasFile('s_image') && $request->file('s_image')->isValid()) {
+//                    $user['s_image'] = $request->file('s_image')->store('/', 'public');
+//                    //dd('anything');
+//                }
+
+                if($request->hasfile('s_image')) {
+                    $request->file('s_image')->move(public_path('img/products/'), $request->file('s_image')->getClientOriginalName());
+                    $user['s_image'] = 'https://jourystore.herokuapp.com/img/products/' . $request->file('s_image')->getClientOriginalName();
                 }
+
+
                 $user->save();
 
                 return response()->json(

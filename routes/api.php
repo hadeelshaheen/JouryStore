@@ -30,12 +30,13 @@ Route::group([
     Route::post('constants/add', [\App\Http\Controllers\Api\GeneralController::class,'addconstants']);
     Route::delete('constants/delete/{id}', [\App\Http\Controllers\Api\GeneralController::class,'deleteconstants']);
     Route::post('ads/add', [\App\Http\Controllers\Api\GeneralController::class,'addAds']);
+    Route::delete('ads/delete/{id}',  [\App\Http\Controllers\Api\GeneralController::class,'destroyAds']);
 
     Route::get('category',  [\App\Http\Controllers\Api\CategoryController::class,'index']);
 
-    Route::post('product/list', [\App\Http\Controllers\Api\ProductController::class,'listProducts']);
+    Route::get('product/list', [\App\Http\Controllers\Api\ProductController::class,'listProducts']);
     Route::get('offers/list', [\App\Http\Controllers\Api\ProductController::class,'listOffers']);
-    Route::post('product/similar',  [\App\Http\Controllers\Api\ProductController::class,'similarProduct']);
+    Route::get('product/similar',  [\App\Http\Controllers\Api\ProductController::class,'similarProduct']);
 
     Route::get('home', [\App\Http\Controllers\Api\GeneralController::class,'homeContent']);
 
@@ -63,8 +64,8 @@ Route::group([
         Route::post('user/edit',  [\App\Http\Controllers\Api\AuthController::class,'updateProfile']);
 
 
-        Route::post('product/search',  [\App\Http\Controllers\Api\ProductController::class,'search']);
-        Route::post('product/filter',  [\App\Http\Controllers\Api\ProductController::class,'filter']);
+        Route::get('product/search',  [\App\Http\Controllers\Api\ProductController::class,'search']);
+        Route::get('product/filter',  [\App\Http\Controllers\Api\ProductController::class,'filter']);
 
 
 
