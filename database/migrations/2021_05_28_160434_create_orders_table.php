@@ -22,15 +22,14 @@ class CreateOrdersTable extends Migration
             $table->enum('s_status',[0,1])->default(0);//1->Delivered  0->Note
             $table->date('dt_date');
             $table->time('t_time');
-            $table->string('s_note');
+            $table->string('s_note')->nullable();
             $table->string('s_store_address')->nullable();
             $table->integer('i_total');
-
             $table->unsignedInteger('i_user_id');
             $table->foreign('i_user_id')->references('id')->on('users');
 
-            $table->unsignedInteger('i_cart_id');
-            $table->foreign('i_cart_id')->references('id')->on('carts');
+//            $table->unsignedInteger('i_product_id');
+//            $table->foreign('i_product_id')->references('id')->on('products');
 
             $table->softDeletes();
             $table->timestamps();

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Cart;
+use App\Models\CartDetails;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,13 +18,10 @@ class CartController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        $total =Cart::where('i_user_id', Auth::id())->sum('i_total');
-        //dd($total);
-        $cart = Cart::with('product')
-            ->where('i_user_id', auth()->user()->id)
-            ->orderBy('created_at','desc')
+    public function index(){
+
+        $cart = Cart::with('items')
+            ->where('i_user_id',Auth::id())
             ->get();
 
         return response()->json([
@@ -33,9 +31,7 @@ class CartController extends Controller
                 'message'=>'Cart list'
             ],
             'cart'=>$cart,
-            'Total'=>$total
             ]);
-
 
     }
 
@@ -53,28 +49,78 @@ class CartController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request){
-
-        $product = Product::find($request->input('i_product_id'));
+        $product_id = $request->i_product_id;
+        $product = Product::find($product_id);
         $price = $product->f_new_price;
-        $quantity = $request->input('i_quantity');
+        $quantity = $request->i_quantity;
         $total = $price * $quantity ;
 
-        $cart = Cart::create(['i_product_id'=>$request->input('i_product_id'),
-            'i_user_id'=>Auth::id(),
-            'i_quantity'=>$quantity,
-            'i_price'=>$price,
-            'i_total'=>$total
+        $cart = Cart::where('i_user_id',Auth::id())->first();
+
+        if ($cart == null) {
+            $cart = Cart::create([
+                'i_user_id' =>Auth::id()
+            ]);
+            $cartItem = CartDetails::create([
+                'i_cart_id'=>$cart->id,
+                'i_product_id'=>$product_id,
+                'i_price'=>$price,
+                'i_quantity'=>$quantity,
+                'i_total'=>$total,
             ]);
 
-        return response()->json([
-            'status'=>[
-                'success'=>true,
-                'code'=> 1,
-                'message'=>'Add to cart'
-            ],
-            'cart'=>$cart]);
+            //update total
+            $sum = CartDetails::where('i_cart_id',$cart->id)->sum('i_total');
+            $cart->i_total = $sum;
+            $cart->save();
 
+            return response()->json([
+                'status'=>[
+                    'success'=>true,
+                    'code'=> 1,
+                    'message'=>'Add to cart']]);
+        }
+        else{
+            $cartItem = CartDetails::where('i_product_id',$product_id)->first();
+            if ($cartItem == null){
+                $cartItem = CartDetails::create([
+                    'i_cart_id'=>$cart->id,
+                    'i_product_id'=>$product_id,
+                    'i_price'=>$price,
+                    'i_quantity'=>$quantity,
+                    'i_total'=>$total,
+                ]);
 
+                //update total
+                $sum = CartDetails::where('i_cart_id',$cart->id)->sum('i_total');
+                $cart->i_total = $sum;
+                $cart->save();
+
+                return response()->json([
+                    'status'=>[
+                        'success'=>true,
+                        'code'=> 1,
+                        'message'=>'Add to cart'
+                    ]]);
+
+            }else{
+                $cartItem->i_quantity = $quantity;
+                $cartItem->i_total = $total;
+                $cartItem->save();
+
+                //update total
+                $sum = CartDetails::where('i_cart_id',$cart->id)->sum('i_total');
+                $cart->i_total = $sum;
+                $cart->save();
+
+                return response()->json([
+                    'status'=>[
+                        'success'=>true,
+                        'code'=> 1,
+                        'message'=>'update cart'
+                    ]]);
+            }
+        }
     }
 
     /**
@@ -100,17 +146,6 @@ class CartController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-//    public function update(Request $request, $cart_id)
-//    {
-//        $cart = Cart::find($cart_id);
-//        $cart->i_quantity = $request->input('i_quantity');
-//        $cart->save();
-//
-//        return response()->json(['status' => 'true',
-//            'message' => 'cart updated !',
-//            'user' => $cart]);
-//
-//    }
 
     /**
      * Remove the specified resource from storage.
@@ -120,15 +155,20 @@ class CartController extends Controller
      */
     public function destroy(Request $request)
     {
-        $cart_id = $request->cart_id;
-        $cart = Cart::destroy($cart_id);
+        $cart_item_id = $request->cart_item_id;
+        $cart = CartDetails::destroy($cart_item_id);
+
+        //update total
+        $cart = Cart::where('i_user_id',Auth::id())->first();
+        $sum = CartDetails::where('i_cart_id',$cart->id)->sum('i_total');
+        $cart->i_total = $sum;
+        $cart->save();
 
         return response()->json([
             'status'=>[
                 'success'=>true,
                 'code'=> 1,
                 'message'=>'deleted done'
-            ],
-            'cart'=>$cart]);
+            ]]);
     }
 }

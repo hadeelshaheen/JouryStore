@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateOffersTable extends Migration
+class CreateCartDetailsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,15 @@ class CreateOffersTable extends Migration
      */
     public function up()
     {
-        Schema::create('offers', function (Blueprint $table) {
+        Schema::create('cart_details', function (Blueprint $table) {
             $table->increments('id');
-            $table->float('f_new_price');
+            $table->unsignedInteger('i_cart_id');
+            $table->foreign('i_cart_id')->references('id')->on('carts')->cascadeOnDelete();
             $table->unsignedInteger('i_product_id');
             $table->foreign('i_product_id')->references('id')->on('products');
+            $table->integer('i_quantity')->default(1);
+            $table->integer('i_price');
+            $table->integer('i_total');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -30,6 +34,6 @@ class CreateOffersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('offers');
+        Schema::dropIfExists('cart_details');
     }
 }

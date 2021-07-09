@@ -9,19 +9,20 @@ class Order extends Model
 {
 
     protected $fillable = ['s_order_type','s_name','s_phone','s_address','s_status'
-        ,'s_store_address','dt_date','t_time','s_note','i_total','i_user_id'
-        ,'i_cart_id'];
+        ,'s_store_address','dt_date','t_time','s_note','i_total','i_user_id'];
 
     use HasFactory;
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,'i_user_id');
     }
 
-
-    public function carts()
+    public function details()
     {
-        return $this->belongsTo(Cart::class,'i_cart_id')->with('product');
+        return $this->hasMany(OrderDetails::class,'i_order_id')
+            ->with('products')
+        ;
     }
+
 }

@@ -26,6 +26,7 @@ class CreateProductsTable extends Migration
             $table->string('s_image');
 
             $table->boolean('b_is_offer')->default(false);
+            $table->boolean('b_is_favorite')->default(false);
             $table->integer('f_old_price');
             $table->integer('f_new_price')->nullable();
 

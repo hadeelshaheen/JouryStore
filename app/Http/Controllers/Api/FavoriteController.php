@@ -19,7 +19,7 @@ class FavoriteController extends Controller
     public function index()
     {
         $favorites = Favorite::with('product')
-                ->where('i_user_id',Auth::id())
+                    ->where('i_user_id',/*Auth::id()*/1)
             ->orderBy('created_at','desc')
             ->get();
 
@@ -48,16 +48,38 @@ class FavoriteController extends Controller
      */
     public function store(Request $request)
     {
-          $favorite =   Favorite::create(['i_product_id'=>$request->input('i_product_id'),
+
+        $favorite = Favorite::where('i_product_id',$request->input('i_product_id'))
+            ->where('i_user_id',Auth::id())->first();
+        if (!$favorite){
+            $favorite =   Favorite::create(['i_product_id'=>$request->input('i_product_id'),
               'i_user_id'=>Auth::id()]);
 
-        return response()->json([
+            return response()->json([
                 'status'=>[
                     'success'=>true,
                     'code'=> 1,
                     'message'=>'done'
                 ],
                 'favorite'=>$favorite]);
+        }
+        else{
+
+            return response()->json([
+                'status'=>[
+                    'success'=>false,
+                    'code'=> 1,
+                    'message'=>'done'
+                ],
+                'favorite'=>$favorite]);
+        }
+
+        $productfav = Product::findOrFail($request->input('i_product_id'));
+        if($productfav) {
+            $productfav->b_is_favorite = true;
+            $productfav->save();
+        }
+
 
 
 

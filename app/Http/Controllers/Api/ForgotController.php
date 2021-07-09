@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ForgotRequest;
 use App\Http\Requests\ResetRequest;
 use App\Models\User;
+use http\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -22,8 +23,8 @@ class ForgotController extends Controller
                'message' => 'User doesnt exists !'
             ] , 404);
         }
-        $token = Str::random(10);
-        dd($token);
+        $token = Str::random(5);
+      //  dd($token);
 
         try {
             DB::table('password_resets')->insert([
@@ -31,6 +32,10 @@ class ForgotController extends Controller
                 'token' => $token
             ]);
             //send email
+            Mail::send('index',['token'=>$token],function (\Illuminate\Mail\Message $message) use($email){
+                $message->to($email);
+                $message->subject('Rest your password');
+            });
             return response([
                 'message'=> 'Check your email !'
             ]);
@@ -51,7 +56,7 @@ class ForgotController extends Controller
             'massage'=>'Invalid token!'
         ], 400);
     }
-    if($user = User::where('email',$passwordResets->email)->first()){
+    if(!$user = User::where('email',$passwordResets->email)->first()){
         return response([
             'message'=>'User doesnt exist!'
         ],404);

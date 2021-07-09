@@ -20,23 +20,16 @@ class AuthController extends Controller
             'email' => 'required|string|unique:users',
             'password' => 'required|string',
             's_phone' => 'required|string|min:7|max:10',
-//            's_image' => 'nullable|image',
-//            's_address' => 'nullable|string'
+
         ]);
         $user =  User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
             's_phone' => $request->s_phone,
-            //  's_image' => $request->s_image,
-            //'s_address' => $request->s_address
 
         ]);
 
-//        $user->save();
-//        return response()->json([
-//            'message' => 'Successfully created user!'
-//        ], 201);
 
         return response()->json(
             [
@@ -46,38 +39,7 @@ class AuthController extends Controller
                     'message'=>'Successfully created user!'
                 ],
                 'user'=>$user]);
-        /***/
-//        $request->validate([
-//            'name' => 'required',
-//            'email' => 'required|string|unique:users',
-//            'password' => 'required|string',
-//            's_phone' => 'required|string|min:7|max:10',
-////            's_image' => 'nullable|image',
-////            's_address' => 'nullable|string'
-//        ]);
-//        $user = new User([
-//            'name' => $request->name,
-//            'email' => $request->email,
-//            'password' => bcrypt($request->password),
-//            's_phone' => $request->s_phone,
-//          //  's_image' => $request->s_image,
-//            //'s_address' => $request->s_address
-//
-//        ]);
-//
-////        $user->save();
-////        return response()->json([
-////            'message' => 'Successfully created user!'
-////        ], 201);
-//
-//        return response()->json(
-//            [
-//                'status'=>[
-//                    'success'=>true,
-//                    'code'=> 1,
-//                    'message'=>'Successfully created user!'
-//                ],
-//                'user'=>$user]);
+
     }
 
     public function login(Request $request){
@@ -85,7 +47,6 @@ class AuthController extends Controller
 //        DB::delete('delete from oauth_clients');
 //        Artisan::call('passport:client', array( '--personal' => true));
 //
-
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
@@ -97,22 +58,27 @@ class AuthController extends Controller
                 'message' => 'User Not Found'
             ], 422);
         $user = $request->user();
-        $tokenResult = $user->createToken('Personal Access Token')->accessToken;
-      //  dd($tokenResult);
-        $token = $tokenResult->token;
+        $tokenResult = $user->createToken('Personal Access Token');
+        $accessToken = $tokenResult->accessToken;
+//        dd($tokenResult->token->expires_at);
+//        $token = $tokenResult->token;
 
         if ($request->remember_me)
-            $token->expires_at = Carbon::now()->addWeeks(1);
-        $token->save();
+            $tokenResult->token->expires_at = Carbon::now()->addWeeks(1);
+        $tokenResult->token->save();
         return response()->json([
-            'message'=>'success login',
+            'status'=>[
+                'success'=>true,
+                'code'=> 1,
+                'message'=>'success login'
+            ],
             'data' => $user,
-            'access_token' => $tokenResult->accessToken,
+            'access_token' => $accessToken,
             'token_type' => 'Bearer',
             'expires_at' => Carbon::parse(
                 $tokenResult->token->expires_at
             )->toDateTimeString(),
-        ],200);
+        ]);
     }
 
     public function logout(Request $request){
@@ -131,6 +97,7 @@ class AuthController extends Controller
                     'message'=>'User Profile'
                 ],
                 'user'=>$request->user()]);
+
     }
 
 
@@ -139,12 +106,11 @@ class AuthController extends Controller
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
                 'email' => 'required',
-                's_phone' => 'nullable|string|min:10|max:14',
+                's_phone' => 'nullable|string|min:7|max:10',
                 's_image' => 'nullable|image',
                 's_address' => 'nullable|string'
             ]);
-//            dd($request->get('name'));
-//            dd($request->paramStr('name'));
+
             if ($validator->fails()) {
                 $error = $validator->errors()->all()[0];
                 return response()->json(['status' => 'false',
@@ -153,21 +119,16 @@ class AuthController extends Controller
             } else {
 
                 $user = User::find(Auth::user()->id);
-//                dd($user);
 
                 $user->name = $request->name;
                 $user->email = $request->email;
                 $user->s_phone = $request->s_phone;
                 $user->s_address = $request->s_address;
 
-//                if ($request->hasFile('s_image') && $request->file('s_image')->isValid()) {
-//                    $user['s_image'] = $request->file('s_image')->store('/', 'public');
-//                    //dd('anything');
-//                }
 
                 if($request->hasfile('s_image')) {
                     $request->file('s_image')->move(public_path('img/products/'), $request->file('s_image')->getClientOriginalName());
-                    $user['s_image'] = 'https://jourystore.herokuapp.com/img/products/' . $request->file('s_image')->getClientOriginalName();
+                    $user['s_image'] = 'https://newlinetech.site/jourystore/public/img/products/' . $request->file('s_image')->getClientOriginalName();
                 }
 
 
@@ -181,10 +142,7 @@ class AuthController extends Controller
                             'message'=>'profile updated !'
                         ],
                         'user'=>$user]);
-//
-//                return response()->json(['status' => 'true',
-//                    'message' => 'profile updated !',
-//                    'user' => $user]);
+
       }
         }catch (\Exception $exception){
             return response()->json(
@@ -197,14 +155,8 @@ class AuthController extends Controller
                     ],
                     'user'=>[]]);
 
-//
-//            return response()->json(['status' => 'false',
-//                'message' => $exception->getMessage(),
-//                'data' => []],500);
+
         }
-
-        /******************/
-
 
 
 

@@ -17,6 +17,6 @@ class Favorite extends Model
             ->select('id',
             's_name_'.app()->getLocale() .' as s_name',
             's_description_'.app()->getLocale() .' as s_description',
-            's_image','b_is_offer','f_old_price','f_new_price','i_category_id');
+            's_image','b_is_offer','b_is_favorite','f_old_price','f_new_price','i_category_id');
     }
 }
