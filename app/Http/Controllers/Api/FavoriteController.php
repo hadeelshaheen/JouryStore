@@ -19,7 +19,7 @@ class FavoriteController extends Controller
     public function index()
     {
         $favorites = Favorite::with('product')
-                    ->where('i_user_id',/*Auth::id()*/1)
+                    ->where('i_user_id',Auth::id())
             ->orderBy('created_at','desc')
             ->get();
 
