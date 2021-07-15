@@ -55,6 +55,11 @@ class FavoriteController extends Controller
             $favorite =   Favorite::create(['i_product_id'=>$request->input('i_product_id'),
               'i_user_id'=>Auth::id()]);
 
+              $productfav = Product::findOrFail($request->input('i_product_id'));
+        if($productfav) {
+            $productfav->b_is_favorite = true;
+            $productfav->save();
+            
             return response()->json([
                 'status'=>[
                     'success'=>true,
@@ -74,10 +79,7 @@ class FavoriteController extends Controller
                 'favorite'=>$favorite]);
         }
 
-        $productfav = Product::findOrFail($request->input('i_product_id'));
-        if($productfav) {
-            $productfav->b_is_favorite = true;
-            $productfav->save();
+      
         }
 
 
